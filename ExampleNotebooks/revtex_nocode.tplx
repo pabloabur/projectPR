@@ -29,7 +29,7 @@
     \author{((( nb.metadata["latex_metadata"]["author"] )))}
 ((*- endif *))
 ((*- else -*))
-    \author{Julius C. F. Schulz}
+    \author{Renato N. Watanabe}
 ((*- endif *))
 
 ((*- if nb.metadata["latex_metadata"]: -*))

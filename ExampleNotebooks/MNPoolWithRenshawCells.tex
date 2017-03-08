@@ -287,7 +287,7 @@
     \begin{document}
     
     
-    \author{Julius C. F. Schulz}\title{MNPoolWithRenshawCells}
+    \author{Renato N. Watanabe}\title{MNPoolWithRenshawCells}
 
 \date{\today}
 \maketitle
@@ -305,7 +305,7 @@ Renshaw cells is present.
 import sys
 sys.path.insert(0, '..')
 import time
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as *
 %matplotlib inline  
 from IPython.display import set_matplotlib_formats
 set_matplotlib_formats('pdf', 'png')
@@ -400,7 +400,7 @@ plt.ylabel('Descending Command index')
 Fig. \ref{fig:spikesMNRenshaw}.
 \newline\textbf{Input \#{}8}\begin{verbatim}
 plt.figure()
-plt.plot(pools[0].poolTerminalSpikes[:, 0],
+plot(pools[0].poolTerminalSpikes[:, 0],
          pools[0].poolTerminalSpikes[:, 1]+1, '.')
 plt.xlabel('t (ms)')
 plt.ylabel('Motor Unit index')

@@ -66,6 +66,7 @@ class NeuralTractUnit(object):
         
         ## Integer corresponding to the neural tract unit identification.
         self.index = index
+
     
       
     def atualizeNeuralTractUnit(self, t, FR):
@@ -89,4 +90,5 @@ class NeuralTractUnit(object):
         '''
         for i in xrange(len(self.indicesOfSynapsesOnTarget)):
             self.transmitSpikesThroughSynapses[i].receiveSpike(t, self.indicesOfSynapsesOnTarget[i])
+        
         

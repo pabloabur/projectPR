@@ -44,9 +44,9 @@ def simulator():
     tic = time.clock()
     for i in xrange(0, len(t)):
         #ankle.atualizeAnkle(t[i], 0)
-        #for j in xrange(len(pools[0].unit)):
-        #    pools[0].unit[j].iInjected[1] = 10
-        pools[1].atualizePool(t[i])
+        for j in xrange(len(pools[0].unit)):
+            pools[0].unit[j].iInjected[1] = 10
+        #pools[1].atualizePool(t[i])
         pools[0].atualizeMotorUnitPool(t[i])
         dendV[i] = pools[0].unit[2].v_mV[0]
         somaV[i] = pools[0].unit[2].v_mV[1] 

@@ -6,7 +6,7 @@ Created on Jul, 28 2015
 
 import numpy as np
 from MotorUnit import MotorUnit
-from MuscularActivation1 import MuscularActivation
+from MuscularActivation2 import MuscularActivation
 from MuscleNoHill import MuscleNoHill
 from MuscleHill import MuscleHill
 from scipy.sparse import lil_matrix

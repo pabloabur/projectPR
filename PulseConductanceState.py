@@ -20,45 +20,8 @@
 
 
 import math
-from numba import jit
 import numpy as np
 
-
-@jit
-def compValOn(v0, alpha, beta, t, t0):
-    '''
-    Time course of the state during the pulse for the *inactivation* states
-    and before and after the pulse for the *activation* states.
-
-    The value of the state \f$v\f$ is computed according to the following
-    equation:
-
-    \f{equation}{
-        v(t) = v_0\exp[-\beta(t-t_0)]
-    \f} 
-    where \f$t_0\f$ is the time at which the pulse changed
-    the value (on to off or off to on) and \f$v_0\f$ is value
-    of the state at that time.
-    '''
-    return v0 * np.exp(beta * (t0 - t))
-
-@jit
-def compValOff(v0, alpha, beta, t, t0):
-    '''
-    Time course of the state during the pulse for the *activation* states
-    and before and after the pulse for the *inactivation* states.
-
-    The value of the state \f$v\f$ is computed according to the following
-    equation:
-
-    \f{equation}{
-        v(t) = 1 + (v_0 - 1)\exp[-\alpha(t-t_0)]
-    \f} 
-    where \f$t_0\f$ is the time at which the pulse changed
-    the value (on to off or off to on) and \f$v_0\f$ is value
-    of the state at that time.
-    '''
-    return 1.0 + (v0 - 1.0)  *  np.exp(alpha * (t0 - t))
 
 class PulseConductanceState(object):
     '''

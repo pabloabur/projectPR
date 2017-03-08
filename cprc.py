@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env /home/intel/intelpython27/bin/python
 import numpy as np
 from MotorUnit import MotorUnit
 

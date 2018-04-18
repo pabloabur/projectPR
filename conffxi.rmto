@@ -1,14 +1,14 @@
-MUnumber_SOL-S,100,
+MUnumber_SOL-S,1,
 MUnumber_SOL-FR,0,
 MUnumber_SOL-FF,0,
-Number_RC_ext,100,
-Number_CMExt,100,
+Number_RC_ext,1,
+Number_CMExt,30,
 Number_Ia-SOL,400,
 Number_Ia-LG,160,
 Number_Ia-TA,280,
 NumberAxonNodes,0,
 timeStep,0.05,
-simDuration,200,
+simDuration,1000,
 nerveLength_PTN,0.8,
 nerveLength_CPN,0.8,
 MNSomaRefPer,5.0,
@@ -25,9 +25,9 @@ hillModel,No,
 EMGModel,HR,
 StateType,pulse,
 % Inputs
-GammaOrder_CMExt,1,
+GammaOrder_CMExt,10,
 DriveTarget_CMExt,ISI,
-DriveFunction_CMExt,3+0*t,
+DriveFunction_CMExt,12+0*t,
 %Stimulus
 stimDistToTerm_PTN,0.2,
 stimStart_PTN,0,
@@ -89,8 +89,8 @@ Con:RC_ext->SOL-S@soma|inhibitory,100,
 Con:RC_ext->SOL-FR@soma|inhibitory,100,
 Con:RC_ext->SOL-FF@soma|inhibitory,100,
 gmax:RC_ext->SOL-S@soma|inhibitory,0.44,
-gmax:RC_ext->SOL-FR@soma|inhibitory,0.3,
-gmax:RC_ext->SOL-FF@soma|inhibitory,0.24,
+gmax:RC_ext->SOL-FR@soma|inhibitory,0.44,
+gmax:RC_ext->SOL-FF@soma|inhibitory,0.44,
 delay:RC_ext->SOL-S@soma|inhibitory,0.3,
 delay:RC_ext->SOL-FR@soma|inhibitory,0.3,
 delay:RC_ext->SOL-FF@soma|inhibitory,0.3,
@@ -142,26 +142,12 @@ TmaxSyn:RC_ext-|inhibitory,1.0,
 tPeakSyn:RC_ext-|excitatory,3,
 tPeakSyn:RC_ext-|inhibitory,0.4,
 Con:SOL-S>RC_ext-@soma|excitatory,100,
-Con:SOL-FR>RC_ext-@soma|excitatory,100,
-Con:SOL-FF>RC_ext-@soma|excitatory,100,
 gmax:SOL-S>RC_ext-@soma|excitatory,0.15,
-gmax:SOL-FR>RC_ext-@soma|excitatory,0.17,
-gmax:SOL-FF>RC_ext-@soma|excitatory,0.3,
 delay:SOL-S>RC_ext-@soma|excitatory,0.3,
-delay:SOL-FR>RC_ext-@soma|excitatory,0.3,
-delay:SOL-FF>RC_ext-@soma|excitatory,0.3,
 dyn:SOL-S>RC_ext-@soma|excitatory,Depressing,
-dyn:SOL-FR>RC_ext-@soma|excitatory,Depressing,
-dyn:SOL-FF>RC_ext-@soma|excitatory,Depressing,
 dec:SOL-S>RC_ext-@soma|excitatory,0.01,
-dec:SOL-FR>RC_ext-@soma|excitatory,0.01,
-dec:SOL-FF>RC_ext-@soma|excitatory,0.01,
 var:SOL-S>RC_ext-@soma|excitatory,0.5,
-var:SOL-FR>RC_ext-@soma|excitatory,0.5,
-var:SOL-FF>RC_ext-@soma|excitatory,0.5,
 tau:SOL-S>RC_ext-@soma|excitatory,200,
-tau:SOL-FR>RC_ext-@soma|excitatory,200,
-tau:SOL-FF>RC_ext-@soma|excitatory,200,
 Con:Noise>RC_ext-@soma|excitatory,100,
 gmax:Noise>RC_ext-@soma|excitatory,0.02,
 delay:Noise>RC_ext-@soma|excitatory,0.3,
@@ -201,7 +187,8 @@ gmax_H:SOL-S@internode,9,
 gmax_Kf:SOL-S@internode,630,
 gmax_KsAxon:SOL-S@internode,2,
 %%% RC
-gmax_Na:RC_ext-@soma,30000,
+% TODO
+gmax_Na:RC_ext-@soma,5000,
 gmax_Kf:RC_ext-@soma,1000,
 gmax_Ks:RC_ext-@soma,4000,
 %States
@@ -267,7 +254,7 @@ cytR,70,
 membCapac,1,
 %% SOL
 %%% S
-position:SOL-,0,0
+position:SOL-,0,18
 threshold:SOL-S,12.35,16.45
 threshold:SOL-FR,16.45,19.3
 threshold:SOL-FF,19.3,20.9
@@ -332,12 +319,12 @@ axonDelayLeakTimeConstant:SOL-S,10,10
 axonDelayLeakTimeConstant:SOL-FR,10,10
 axonDelayLeakTimeConstant:SOL-FF,10,10
 % Interneurons
-%% RC
-position:RC_ext-,0,0
-threshold:RC_ext-,5,15
-d@soma:RC_ext-,25,25
-l@soma:RC_ext-,242,242
-res@soma:RC_ext-,760,760
+%% RC, threshold set to make Irh=0.5
+position:RC_ext-,0,18
+threshold:RC_ext-,0.15,0.5 
+d@soma:RC_ext-,20,25
+l@soma:RC_ext-,242,242 % 12000
+res@soma:RC_ext-,200,200 % 300000
 % Afferents
 axonDelayCondVel:Ia-SOL-,55,66
 axonDelayThreshold:Ia-SOL-,18,8

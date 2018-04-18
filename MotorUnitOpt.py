@@ -256,7 +256,6 @@ class MotorUnit(object):
         ## Vector with the last instant of spike of all compartments. 
         self.tSpikes = np.zeros((self.compNumber), dtype = np.float64)
         
-        
         gCoupling_muS = np.zeros_like(self.v_mV, dtype = 'd')
         
             
@@ -301,9 +300,6 @@ class MotorUnit(object):
         ## Matrix of the conductance of the motoneuron. Multiplied by the vector self.v_mV,
         ## results in the passive currents of each compartment.
         self.G = np.float64(GC + GL)
-
-        
-        
 
         self.EqCurrent_nA = np.dot(-GL, EqPot) + IPump 
 
@@ -399,18 +395,19 @@ class MotorUnit(object):
         self.transmitSpikesThroughSynapses = []
         self.indicesOfSynapsesOnTarget = []         
     
-    def atualizeMotorUnit(self, t):
+    def atualizeMotorUnit(self, t, v_mV):
         '''
         Atualize the dynamical and nondynamical (delay) parts of the motor unit.
 
         - Inputs:
             + **t**: current instant, in ms.
         ''' 
-        self.atualizeCompartments(t)
+        self.atualizeCompartments(t, v_mV)
         self.atualizeDelay(t)
+        
 
-    #@profile    
-    def atualizeCompartments(self, t):
+    #@profile        
+    def atualizeCompartments(self, t, v_mV):
         '''
         Atualize all neural compartments.
 
@@ -418,35 +415,12 @@ class MotorUnit(object):
             + **t**: current instant, in ms.
 
         '''        
-        np.clip(runge_kutta(self.dVdt, t, self.v_mV, self.conf.timeStep_ms, self.conf.timeStepByTwo_ms, self.conf.timeStepBySix_ms), -30.0, 120.0, self.v_mV)
+        self.v_mV[:] = v_mV
+
         for i in xrange(self.somaIndex, self.compNumber):
             if self.v_mV[i] > self.threshold_mV and t-self.tSpikes[i] > self.MNRefPer_ms: 
                 self.addCompartmentSpike(t, i)    
      
-    #@profile   
-    def dVdt(self, t, V): 
-        '''
-        Compute the potential derivative of all compartments of the motor unit.
-
-        - Inputs:
-            + **t**: current instant, in ms.
-
-            + **V**: Vector with the current potential value of all neural
-            compartments of the motor unit.
-        
-        \f{equation}{
-            \frac{dV}{dt} = (I_{active} + GV+ I_{inj} + I_{eq})C_inv   
-        }
-        where all the variables are vectors with the number of elements equal
-        to the number of compartments and \f$G\f$ is the conductance matrix built
-        in the compGCouplingMatrix function.
-        '''
-        
-        for i in xrange(self.compNumber): 
-            self.iIonic.itemset(i, self.compartment[i].computeCurrent(t, V.item(i)))
-
-              
-        return (self.iIonic + self.G.dot(V)  + self.iInjected + self.EqCurrent_nA) * self.capacitanceInv
     
     #@profile
     def addCompartmentSpike(self, t, comp):
@@ -480,8 +454,8 @@ class MotorUnit(object):
 
         if -1e-3 < (t - self.Delay.terminalSpikeTrain) < 1e-3: 
             self.terminalSpikeTrain.append([t, self.index])
+                   
         
-
         # Check whether there is antidromic impulse reaching soma or RC
         if self.Delay.indexAntidromicSpike < len(self.Delay.antidromicSpikeTrain) and -1e-2 < (t - self.Delay.antidromicSpikeTrain[self.Delay.indexAntidromicSpike]) < 1e-2: 
 

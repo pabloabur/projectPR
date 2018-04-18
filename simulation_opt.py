@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from Configuration import Configuration
-from MotorUnitPool import MotorUnitPool
-from InterneuronPool import InterneuronPool
+from MotorUnitPoolOpt import MotorUnitPool
+from InterneuronPoolOpt import InterneuronPool
 from NeuralTract import NeuralTract
 from SynapsesFactory import SynapsesFactory
 from jointAnkleForceTask import jointAnkleForceTask
@@ -27,7 +27,8 @@ def simulator():
     pools = dict()
     pools[0] = MotorUnitPool(conf, 'SOL')
     pools[1] = NeuralTract(conf, 'CMExt')
-    #pools[2] = InterneuronPool(conf, 'RC', 'ext')
+
+    #pools.append(InterneuronPool(conf, 'RC'))
 
     #ankle = jointAnkleForceTask(conf, pools)
     Syn = SynapsesFactory(conf, pools)
@@ -35,12 +36,19 @@ def simulator():
     
     t = np.arange(0.0, conf.simDuration_ms, conf.timeStep_ms)
 
+    dendV = np.zeros_like(t)
+    somaV = np.zeros_like(t)
+    internodeV = np.zeros_like(t)
+    nodeV = np.zeros_like(t)
+
     tic = time.time()
     for i in xrange(0, len(t)):
+        #for j in xrange(len(pools[0].unit)):
+        #    pools[0].unit[j].iInjected[1] = 10
         pools[1].atualizePool(t[i])
         pools[0].atualizeMotorUnitPool(t[i])
-        #pools[3].atualizePool(t[i]) # RC synaptic Noise
-        #pools[2].atualizeInterneuronPool(t[i]) # RC pool
+        dendV[i] = pools[0].unit[2].v_mV[0]
+        somaV[i] = pools[0].unit[2].v_mV[1] 
     toc = time.time()
     print str(toc - tic) + ' seconds'
 
@@ -67,12 +75,12 @@ def simulator():
     '''
 if __name__ == '__main__':
 
-    #cProfile.run('simulator()', sort = 'tottime')
+    cProfile.run('simulator()', sort = 'tottime')
     
     #np.__config__.show()
     
     
-    simulator()
+    #simulator()
     '''
     plt.show()
     '''

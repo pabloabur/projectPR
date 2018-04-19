@@ -22,8 +22,8 @@ def simulator():
     tic = time.clock()
     for i in xrange(0, len(t)):
         # Corrent injectada no soma dos MNs
-        for j in xrange(1, len(pools[0].iInjected), 2):
-            pools[0].iInjected[j] = 10
+        #for j in xrange(1, len(pools[0].iInjected), 2):
+        #    pools[0].iInjected[j] = 10
         pools[0].atualizeMotorUnitPool(t[i]) # MN pool
         pools[2].atualizePool(t[i]) # RC synaptic Noise
         pools[1].atualizeInterneuronPool(t[i]) # RC pool

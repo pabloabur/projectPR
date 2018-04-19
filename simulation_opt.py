@@ -8,7 +8,7 @@ Created on Sep 30, 2015
 import cProfile
 import profile
 import time
-
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -75,12 +75,12 @@ def simulator():
     '''
 if __name__ == '__main__':
 
-    cProfile.run('simulator()', sort = 'tottime')
+    #cProfile.run('simulator()', sort = 'tottime')
     
     #np.__config__.show()
     
     
-    #simulator()
+    simulator()
     '''
     plt.show()
     '''

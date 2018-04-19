@@ -8,6 +8,7 @@ Created on Sep 30, 2015
 import cProfile
 import profile
 import time
+import sys
 
 
 import matplotlib.pyplot as plt
@@ -24,6 +25,9 @@ def simulator():
 
     conf = Configuration('confTest.rmto')
 
+    #idx = np.where(conf.confArray['f0']=='MUnumber_SOL-S')[0][0]
+    #conf.confArray['f1'][idx] = nMN
+
     pools = dict()
     pools[0] = MotorUnitPool(conf, 'SOL')
     pools[1] = NeuralTract(conf, 'CMExt')
@@ -32,7 +36,8 @@ def simulator():
     #ankle = jointAnkleForceTask(conf, pools)
     Syn = SynapsesFactory(conf, pools)
     del Syn
-    
+
+    #conf.simDuration_ms = duration
     t = np.arange(0.0, conf.simDuration_ms, conf.timeStep_ms)
 
     tic = time.time()

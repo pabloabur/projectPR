@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from Configuration import Configuration
-from MotorUnitPoolOpt import MotorUnitPool
+from MotorUnitPoolOptC import MotorUnitPool
 from InterneuronPoolOpt import InterneuronPool
 from NeuralTract import NeuralTract
 from SynapsesFactory import SynapsesFactory

@@ -16,7 +16,7 @@
 '''
 
 import numpy as np
-from MotorUnitOpt import MotorUnit
+from CythonMotorUnitOpt import MotorUnit
 from MuscularActivation import MuscularActivation
 from MuscleNoHill import MuscleNoHill
 from MuscleHill import MuscleHill
@@ -24,7 +24,6 @@ from MuscleSpindle import MuscleSpindle
 from scipy.sparse import lil_matrix
 #import pyculib.sparse as pcu
 import time
-import calculate
 #from numba import jit, prange
 
 def SpMV_viaMKL( A, x, numberOfBlocks, sizeOfBlock ):
@@ -70,6 +69,14 @@ def SpMV_viaMKL( A, x, numberOfBlocks, sizeOfBlock ):
      SpMV(byref(c_char("N")), byref(c_int(numberOfBlocks)), byref(c_int(sizeOfBlock)), data ,indptr, indices, np_x, np_y ) 
 
      return y
+
+def runge_kutta(derivativeFunction,t, x, timeStep, timeStepByTwo, timeStepBySix):
+    k1 = derivativeFunction(t, x)
+    k2 = derivativeFunction(t + timeStepByTwo, x + timeStepByTwo * k1)
+    k3 = derivativeFunction(t + timeStepByTwo, x + timeStepByTwo * k2)
+    k4 = derivativeFunction(t + timeStep, x + timeStep * k3)
+    
+    return x + timeStepBySix * (np.add(np.add(np.add(k1, k2, order = 'C'), np.add(k2, k3, order='C')), np.add(k3, k4, order='C'), order='C'))
 
 class MotorUnitPool(object):
     '''
@@ -204,17 +211,9 @@ class MotorUnitPool(object):
             + **t**: current instant, in ms.
         '''
 
-        np.clip(calculate.runge_kutta(t, self.v_mV, self.conf.timeStep_ms,
+        np.clip(runge_kutta(self.dVdt, t, self.v_mV, self.conf.timeStep_ms,
                             self.conf.timeStepByTwo_ms,
-                            self.conf.timeStepBySix_ms,
-                            self.MUnumber,
-                            self.unit,
-                            self.iIonic,
-                            self.G,
-                            self.iInjected,
-                            self.EqCurrent_nA,
-                            self.capacitanceInv
-                            ),
+                            self.conf.timeStepBySix_ms),
                             -30.0, 120.0, self.v_mV)
                             
         for i in xrange(self.MUnumber):
@@ -226,6 +225,22 @@ class MotorUnitPool(object):
                                            self.Muscle.accelerationNorm, 
                                            31, 33)
     
+    def dVdt(self, t, V): 
+        
+        for i in xrange(self.MUnumber):
+            for j in xrange(self.unit[i].compNumber):
+                self.iIonic.itemset(i*self.unit[0].compNumber+j,
+                                    self.unit[i].compartment[j].computeCurrent(t,
+                                                                               V.item(i*self.unit[0].compNumber+j)))
+        return (self.iIonic + self.G.dot(V) + self.iInjected
+                + self.EqCurrent_nA) * self.capacitanceInv
+        
+        
+             
+        #return (self.iIonic + SpMV_viaMKL(self.G,V,self.MUnumber, self.sizeOfBlock) + self.iInjected
+        #        + self.EqCurrent_nA) * self.capacitanceInv
+       
+
     def listSpikes(self):
         '''
         List the spikes that occurred in the soma and in

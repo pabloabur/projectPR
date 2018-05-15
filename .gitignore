@@ -102,3 +102,4 @@ ENV/
 *.txt
 *.data
 *.data.old
+*.html

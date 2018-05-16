@@ -18,7 +18,6 @@ from MotorUnitPoolOpt import MotorUnitPool
 from InterneuronPoolOpt import InterneuronPool
 from NeuralTract import NeuralTract
 from SynapsesFactory import SynapsesFactory
-from jointAnkleForceTask import jointAnkleForceTask
 
 def simulator():
 
@@ -43,7 +42,7 @@ def simulator():
     tic = time.time()
     for i in xrange(0, len(t)):
         for j in xrange(len(pools[0].unit)):
-            pools[0].iInjected[0] = 5
+            pools[0].iInjected[j] = 15
         pools[0].atualizeMotorUnitPool(t[i])
         dendV[i] = pools[0].unit[2].v_mV[0]
         somaV[i] = pools[0].unit[2].v_mV[1] 

@@ -22,7 +22,7 @@
 
 from CythonCompartment import Compartment
 import numpy as np
-from AxonDelay import AxonDelay
+from CythonAxonDelay import AxonDelay
 import math
 from scipy.sparse import lil_matrix
 import time
@@ -348,16 +348,13 @@ class MotorUnit(object):
         self.stimulusModulationStart_ms = float(conf.parameterSet('stimModulationStart_' + self.nerve, pool, 0))
         self.stimulusModulationStop_ms = float(conf.parameterSet('stimModulationStop_' + self.nerve, pool, 0))
 
-        exec 'def axonStimModulation(t): return '   +  conf.parameterSet('stimModulation_' + self.nerve, pool, 0)
-        
         startStep = int(np.rint(self.stimulusStart_ms / self.conf.timeStep_ms))
-        self.axonStimModulation = axonStimModulation
         ## Vector with the nerve stimulus, in mA.
         self.nerveStimulus_mA = np.zeros((int(np.rint(conf.simDuration_ms/conf.timeStep_ms)), 1), dtype = float)
         for i in xrange(len(self.nerveStimulus_mA)):
                 if (i * self.conf.timeStep_ms >= self.stimulusStart_ms and  i * self.conf.timeStep_ms <= self.stimulusStop_ms):
                     if (i * self.conf.timeStep_ms > self.stimulusModulationStart_ms and  i * self.conf.timeStep_ms < self.stimulusModulationStop_ms):
-                        stimulusFrequency_Hz = self.stimulusMeanFrequency_Hz + axonStimModulation(i * self.conf.timeStep_ms)
+                        stimulusFrequency_Hz = self.stimulusMeanFrequency_Hz + self.axonStimModulation(i * self.conf.timeStep_ms)
                     else:
                         stimulusFrequency_Hz = self.stimulusMeanFrequency_Hz
                     if stimulusFrequency_Hz > 0:
@@ -405,8 +402,12 @@ class MotorUnit(object):
         self.atualizeCompartments(t, v_mV)
         self.atualizeDelay(t)
         
-
-    #@profile        
+    def axonStimModulation(self, t):
+        modulation = self.conf.parameterSet('stimModulation_' + self.nerve, self.pool, 0)
+        b = int(modulation.split('+',1)[0])
+        a = int(modulation.split('+',1)[1].split('*',1)[0])
+        return b + a*t
+        
     def atualizeCompartments(self, t, v_mV):
         '''
         Atualize all neural compartments.

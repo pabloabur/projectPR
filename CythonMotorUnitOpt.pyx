@@ -1,25 +1,3 @@
-'''
-    Neuromuscular simulator in Python.
-    Copyright (C) 2016  Renato Naville Watanabe
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    Contact: renato.watanabe@usp.br
-'''
-
-
-
 from CythonCompartment import Compartment
 import numpy as np
 from CythonAxonDelay import AxonDelay
@@ -28,7 +6,7 @@ from scipy.sparse import lil_matrix
 import time
 
 
-def calcGCoupling(cytR, lComp1, lComp2, dComp1, dComp2):
+cdef double calcGCoupling(double cytR, double lComp1, double lComp2, double dComp1, double dComp2):
     '''
     Calculates the coupling conductance between two compartments.
 
@@ -58,9 +36,6 @@ def calcGCoupling(cytR, lComp1, lComp2, dComp1, dComp2):
     rAxis2 = (cytR * lComp2) / (math.pi * math.pow(dComp2/2.0, 2))
     
     return 200 / (rAxis1 + rAxis2)
-
-
-
 
 def compGCouplingMatrix(gc):
     '''
@@ -96,66 +71,24 @@ def compGCouplingMatrix(gc):
         else:
             GC[i,i-1:i+2] = [gc[i-1], -gc[i-1]-gc[i], gc[i]]
                   
-            
     return GC
 
-#@profile
-def runge_kutta(derivativeFunction, t, x, timeStep, timeStepByTwo,  timeStepBySix):
-    '''
-    Function to implement the fourth order Runge-Kutta Method to solve numerically a 
-    differential equation.
-
-    - Inputs: 
-        + **derivativeFunction**: function that corresponds to the derivative of the differential equation.
-
-        + **t**: current instant.
-
-        + **x**:  current state value.
-
-        + **timeStep**: time step of the solution of the differential equation, in the same unit of t.
-
-        + **timeStepByTwo**:  timeStep divided by two, for computational efficiency.
-
-        + **timeStepBySix**: timeStep divided by six, for computational efficiency.
-
-    This method is intended to solve the following differential equation:
-
-    \f{equation}{
-        \frac{dx(t)}{dt} = f(t, x(t))
-    \f}
-    First, four derivatives are computed:
-
-    \f{align}{
-        k_1 &= f(t,x(t))\\
-        k_2 &= f(t+\frac{\Delta t}{2}, x(t) + \frac{\Delta t}{2}.k_1)\\
-        k_3 &= f(t+\frac{\Delta t}{2}, x(t) + \frac{\Delta t}{2}.k_2)\\
-        k_4 &= f(t+\Delta t, x(t) + \Delta t.k_3)
-    \f}
-    where \f$\Delta t\f$ is the time step of the numerical solution of the
-    differential equation.
-
-    Then the value of \f$x(t+\Delta t)\f$ is computed with:
-
-    \f{equation}{
-        x(t+\Delta t) = x(t) + \frac{\Delta t}{6}(k_1 + 2k_2 + 2k_3+k_4)
-    \f}
-    '''       
-    k1 = derivativeFunction(t, x)
-    k2 = derivativeFunction(t + timeStepByTwo, x + timeStepByTwo * k1)
-    k3 = derivativeFunction(t + timeStepByTwo, x + timeStepByTwo * k2)
-    k4 = derivativeFunction(t + timeStep, x + timeStep * k3)
-    
-    return x + timeStepBySix * (k1 + k2 + k2 + k3 + k3 + k4)
-    #return x + timeStep * (k1)
-
-
-class MotorUnit(object):
+cdef class MotorUnit:
     '''
     Class that implements a motor unit model. Encompasses a motoneuron
     and a muscle unit.
     '''
+    cdef unsigned int index, NumberOfAxonNodes, hrType, compNumber, i
+    cdef str kind, pool, MUSpatialDistribution
+    cdef double muscleThickness, skinThickness, tSomaSpike, threshold_mV, position_mm
+    cdef double radius, angle, x, y, distance_mm, attenuationToSkin, timeWidening, ampEMG_mV
+    cdef double timeCteEMG_ms
+    cdef list compartmentsList, muSectionPosition_mm
+    cdef dict compartment
+    cdef double[:] v_mV, tSpikes, gCoupling_muS, gLeak, capacitance_nF, EqPot, IPump, compLength
+    cdef double[:] capacitanceInv
 
-    def __init__(self, conf, pool, index, kind, muscleThickness, skinThickness):
+    def __init__(self, conf, str pool, unsigned int index, str kind, double muscleThickness, double skinThickness):
         '''
         Constructor
 
@@ -187,9 +120,9 @@ class MotorUnit(object):
         # Neural compartments
         ## The instant of the last spike of the Motor unit
         ## at the Soma compartment.
-        self.tSomaSpike = float("-inf")
+        self.tSomaSpike = <double>"-inf"
 
-        NumberOfAxonNodes = int(conf.parameterSet('NumberAxonNodes', pool, index))
+        NumberOfAxonNodes = <unsigned int>conf.parameterSet('NumberAxonNodes', pool, index)
         
 
         compartmentsList = ['dendrite', 'soma']
@@ -201,7 +134,7 @@ class MotorUnit(object):
 
         
         ## Integer corresponding to the motor unit order in the pool, according to the Henneman's principle (size principle).
-        self.index = int(index)
+        self.index = <unsigned int>index
         ## Dictionary of Compartment of the Motor Unit.
         self.compartment = dict()
         ## Value of the membrane potential, in mV, that is considered a spike.
@@ -252,26 +185,33 @@ class MotorUnit(object):
         ## Number of compartments.
         self.compNumber = len(self.compartment)
         ## Vector with membrane potential,in mV, of all compartments. 
-        self.v_mV = np.zeros((self.compNumber), dtype = np.float64)
+        self.v_mV_np = np.zeros((self.compNumber), dtype = np.double)
+        self.v_mV = self.v_mV_np
         ## Vector with the last instant of spike of all compartments. 
-        self.tSpikes = np.zeros((self.compNumber), dtype = np.float64)
+        self.tSpikes_np = np.zeros((self.compNumber), dtype = np.double)
+        self.tSpikes = self.tSpikes_np
         
-        gCoupling_muS = np.zeros_like(self.v_mV, dtype = 'd')
-        
+        gCoupling_muS_np = np.zeros((self.compNumber), dtype = np.double)
+        gCoupling_muS = gCoupling_muS_np
             
         for i in xrange(len(self.compartment)-1): 
-            gCoupling_muS[i] = calcGCoupling(float(conf.parameterSet('cytR',pool, index)), 
+            gCoupling_muS[i] = calcGCoupling(<double>conf.parameterSet('cytR',pool, index), 
                                              self.compartment[i].length_mum,
                                              self.compartment[i + 1].length_mum,
                                              self.compartment[i].diameter_mum,
                                              self.compartment[i + 1].diameter_mum)
         
         
-        gLeak = np.zeros_like(self.v_mV, dtype = 'd')    
-        capacitance_nF = np.zeros_like(self.v_mV, dtype = 'd')
-        EqPot = np.zeros_like(self.v_mV, dtype = 'd')
-        IPump = np.zeros_like(self.v_mV, dtype = 'd')
-        compLength = np.zeros_like(self.v_mV, dtype = 'd')        
+        gLeak_np = np.zeros((self.compNumber), dtype = np.double)
+        gLeak = gLeak_np
+        capacitance_nF_np = np.zeros((self.compNumber), dtype = np.double)
+        capacitance_nF = capacitance_nF_np
+        EqPot_np = np.zeros((self.compNumber), dtype = np.double)
+        EqPot = EqPot_np
+        IPump_np = np.zeros((self.compNumber), dtype = np.double)
+        IPump = IPump_np
+        compLength_np = np.zeros((self.compNumber), dtype = np.double)
+        compLength = compLength_np
         
         for i in xrange(len(self.compartment)):                                                              
             capacitance_nF[i] = self.compartment[i].capacitance_nF
@@ -281,11 +221,11 @@ class MotorUnit(object):
             compLength[i] = self.compartment[i].length_mum
             self.v_mV[i] = self.compartment[i].EqPot_mV
         
-        
         ## Vector with  the inverse of the capacitance of all compartments. 
-        self.capacitanceInv = 1.0 / capacitance_nF
-
+        for i in xrange(len(capacitance_nF)):
+            self.capacitanceInv[i] = 1.0 / capacitance_nF[i]
         
+        # TODO form here on
         ## Vector with current, in nA,  of each compartment coming from other elements of the model. For example 
         ## from ionic channels and synapses.       
         self.iIonic = np.full_like(self.v_mV, 0.0)
@@ -392,7 +332,7 @@ class MotorUnit(object):
         self.transmitSpikesThroughSynapses = []
         self.indicesOfSynapsesOnTarget = []         
     
-    def atualizeMotorUnit(self, t, v_mV):
+    cdef atualizeMotorUnit(self, double t, double[:] v_mV):
         '''
         Atualize the dynamical and nondynamical (delay) parts of the motor unit.
 
@@ -402,13 +342,14 @@ class MotorUnit(object):
         self.atualizeCompartments(t, v_mV)
         self.atualizeDelay(t)
         
-    def axonStimModulation(self, t):
+    cdef double axonStimModulation(self, double t):
+        cdef int a, b
         modulation = self.conf.parameterSet('stimModulation_' + self.nerve, self.pool, 0)
-        b = int(modulation.split('+',1)[0])
-        a = int(modulation.split('+',1)[1].split('*',1)[0])
+        b = <int>modulation.split('+',1)[0]
+        a = <int>modulation.split('+',1)[1].split('*',1)[0]
         return b + a*t
         
-    def atualizeCompartments(self, t, v_mV):
+    cdef atualizeCompartments(self, double t, double[:] v_mV):
         '''
         Atualize all neural compartments.
 
@@ -416,15 +357,14 @@ class MotorUnit(object):
             + **t**: current instant, in ms.
 
         '''        
-        self.v_mV[:] = v_mV
+        # TODO does this really work?
+        #self.v_mV[:] = v_mV
 
         for i in xrange(self.somaIndex, self.compNumber):
             if self.v_mV[i] > self.threshold_mV and t-self.tSpikes[i] > self.MNRefPer_ms: 
                 self.addCompartmentSpike(t, i)    
      
-    
-    #@profile
-    def addCompartmentSpike(self, t, comp):
+    cdef addCompartmentSpike(self, double t, unsigned int comp):
         '''
         When the soma potential is above the threshold a spike is added tom the soma.
 

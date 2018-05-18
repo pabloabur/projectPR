@@ -70,19 +70,12 @@ def SpMV_viaMKL( A, x, numberOfBlocks, sizeOfBlock ):
 
      return y
 
-def runge_kutta(derivativeFunction,t, x, timeStep, timeStepByTwo, timeStepBySix):
-    k1 = derivativeFunction(t, x)
-    k2 = derivativeFunction(t + timeStepByTwo, x + timeStepByTwo * k1)
-    k3 = derivativeFunction(t + timeStepByTwo, x + timeStepByTwo * k2)
-    k4 = derivativeFunction(t + timeStep, x + timeStep * k3)
-    
-    return x + timeStepBySix * (np.add(np.add(np.add(k1, k2, order = 'C'), np.add(k2, k3, order='C')), np.add(k3, k4, order='C'), order='C'))
-
-class MotorUnitPool(object):
+cdef class MotorUnitPool:
     '''
     Class that implements a motor unit pool. Encompasses a set of motor
     units that controls a single  muscle.
     '''
+    cdef double[:] v_mV
 
     def __init__(self, conf, pool):
         '''
@@ -130,8 +123,9 @@ class MotorUnitPool(object):
             self.totalNumberOfCompartments = self.totalNumberOfCompartments \
                 + self.unit[i].compNumber
 
-        self.v_mV = np.zeros((self.totalNumberOfCompartments),
+        self.v_mV_np = np.zeros((self.totalNumberOfCompartments),
                              dtype = np.double)
+        self.v_mV = self.v_mV_np
              
         self.G = lil_matrix((self.totalNumberOfCompartments,
                           self.totalNumberOfCompartments), dtype = float)
@@ -211,7 +205,7 @@ class MotorUnitPool(object):
             + **t**: current instant, in ms.
         '''
 
-        np.clip(runge_kutta(self.dVdt, t, self.v_mV, self.conf.timeStep_ms,
+        np.clip(self.runge_kutta(t, self.v_mV, self.conf.timeStep_ms,
                             self.conf.timeStepByTwo_ms,
                             self.conf.timeStepBySix_ms),
                             -30.0, 120.0, self.v_mV)
@@ -225,7 +219,7 @@ class MotorUnitPool(object):
                                            self.Muscle.accelerationNorm, 
                                            31, 33)
     
-    def dVdt(self, t, V): 
+    cdef double[:] dVdt(self, double t, double[:] V): 
         
         for i in xrange(self.MUnumber):
             for j in xrange(self.unit[i].compNumber):
@@ -240,6 +234,14 @@ class MotorUnitPool(object):
         #return (self.iIonic + SpMV_viaMKL(self.G,V,self.MUnumber, self.sizeOfBlock) + self.iInjected
         #        + self.EqCurrent_nA) * self.capacitanceInv
        
+    cdef double[:] runge_kutta(self, double t, double[:] x, double timeStep, double timeStepByTwo, double timeStepBySix):
+        k1 = self.dVdt(t, x)
+        k2 = self.dVdt(t + timeStepByTwo, x + timeStepByTwo * k1)
+        k3 = self.dVdt(t + timeStepByTwo, x + timeStepByTwo * k2)
+        k4 = self.dVdt(t + timeStep, x + timeStep * k3)
+        
+        return x + timeStepBySix * (np.add(np.add(np.add(k1, k2, order = 'C'), np.add(k2, k3, order='C')), np.add(k3, k4, order='C'), order='C'))
+
 
     def listSpikes(self):
         '''
@@ -261,25 +263,17 @@ class MotorUnitPool(object):
         self.poolTerminalSpikes = np.reshape(terminalSpikeTrain, (-1, 2))
 
     def getMotorUnitPoolInstantEMG(self, t):
-        '''
-        '''
         emg = 0
         for i in xrange(self.MUnumber): emg += self.unit[i].getEMG(t)
 
         return emg
 
     def getMotorUnitPoolEMG(self):
-        '''
-        '''
         for i in xrange(0, len(self.emg)):
             self.emg[i] = self.getMotorUnitPoolInstantEMG(i * self.conf.timeStep_ms)
 
 
     def reset(self):
-        '''
-        '''
-
-                   
         self.poolSomaSpikes = np.array([])
         self.poolLastCompSpikes = np.array([])    
         self.poolTerminalSpikes = np.array([])

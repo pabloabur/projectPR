@@ -1,6 +1,6 @@
 '''
     Neuromuscular simulator in Python.
-    Copyright (C) 2017  Renato Naville Watanabe
+    Copyright (C) 2018  Renato Naville Watanabe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 '''
 
 
-from Compartment import Compartment
+from CompartmentNoChannel import CompartmentNoChannel
 import numpy as np
 from AxonDelay import AxonDelay
 import math
@@ -78,7 +78,7 @@ def runge_kutta(derivativeFunction, t, x, timeStep, timeStepByTwo,  timeStepBySi
 
 
 
-class Interneuron(object):
+class InterneuronNoChannel(object):
     '''
     Class that implements a motor unit model. Encompasses a motoneuron
     and a muscle unit.
@@ -125,7 +125,7 @@ class Interneuron(object):
         
 
         for i in xrange(len(compartmentsList)): 
-            self.compartment[i] = Compartment(compartmentsList[i], self.conf, self.pool, self.index, self.kind)
+            self.compartment[i] = CompartmentNoChannel(compartmentsList[i], self.conf, self.pool, self.index, self.kind)
 
         ## Number of compartments.
         self.compNumber = len(self.compartment)
@@ -199,6 +199,8 @@ class Interneuron(object):
 
         if self.v_mV[self.somaIndex] > self.threshold_mV and t-self.tSomaSpike > self.RefPer_ms:
             self.addSomaSpike(t)
+            self.v_mV[self.somaIndex] = -10
+
 
     def addSomaSpike(self, t):
         '''
@@ -211,9 +213,7 @@ class Interneuron(object):
         self.somaSpikeTrain.append([t, int(self.index)])
         self.transmitSpikes(t)
 
-        for channel in self.compartment[self.somaIndex].Channels:
-            for channelState in channel.condState: channelState.changeState(t)
-
+       
     def transmitSpikes(self, t):
         '''
         - Inputs:

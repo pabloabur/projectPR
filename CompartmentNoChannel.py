@@ -1,6 +1,6 @@
 '''
     Neuromuscular simulator in Python.
-    Copyright (C) 2016  Renato Naville Watanabe
+    Copyright (C) 2018  Renato Naville Watanabe
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,11 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: renato.watanabe@usp.br
+    Contact: renato.watanabe@ufabc.edu.br
 '''
 
 
-from ChannelConductance import ChannelConductance
+
 
 from Synapse import Synapse
 import math
@@ -49,7 +49,7 @@ def calcGLeak(area, specificRes):
     '''
     return (1e6 * area) / specificRes
 
-class Compartment(object):
+class CompartmentNoChannel(object):
     '''
     Class that implements a neural compartment. For now it is implemented
     *dendrite* and *soma*.
@@ -75,8 +75,7 @@ class Compartment(object):
             and *FF* (fast and fatigable).
         '''
         
-        ## List of ChannelConductance objects in the Compartment.
-        self.Channels = []
+        
         ## String with the type of the motor unit. It can be *S* (slow), *FR* (fast and resistant), 
         ## and *FF* (fast and fatigable).
         self.neuronKind = neuronKind
@@ -114,26 +113,7 @@ class Compartment(object):
         self.gLeak_muS = calcGLeak(area_cm2, specifRes_Ohmcm2)
         
 
-        if (kind == 'soma'):
-            self.Channels.append(ChannelConductance('Kf', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('Ks', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('Na', conf, area_cm2, pool, neuronKind, kind, index))
-        elif (kind == 'dendrite'):
-            pass
-        elif (kind == 'node'):
-            self.Channels.append(ChannelConductance('Na', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('Nap', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('Kf', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('KsAxon', conf, area_cm2, pool, neuronKind, kind, index))
-        elif (kind == 'internode'):
-            self.Channels.append(ChannelConductance('Kf', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('KsAxon', conf, area_cm2, pool, neuronKind, kind, index))
-            self.Channels.append(ChannelConductance('H', conf, area_cm2, pool, neuronKind, kind, index))
-
-
-        ## Integer with the number of ionic channels.
-        self.numberChannels = len(self.Channels)
-
+   
         
     #@profile    
     def computeCurrent(self, t, V_mV):
@@ -151,7 +131,7 @@ class Compartment(object):
 
         if self.SynapsesIn[0].numberOfIncomingSynapses: I += self.SynapsesIn[0].computeCurrent(t, V_mV)
         if self.SynapsesIn[1].numberOfIncomingSynapses: I += self.SynapsesIn[1].computeCurrent(t, V_mV)
-        for i in xrange(0, self.numberChannels): I += self.Channels[i].computeCurrent(t, V_mV)
+       
         
         return I
 
@@ -161,5 +141,4 @@ class Compartment(object):
         '''
         for i in xrange(len(self.SynapsesIn)):
             self.SynapsesIn[i].reset()
-        for i in xrange(len(self.Channels)):
-            self.Channels[i].reset()
+        

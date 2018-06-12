@@ -21,14 +21,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from Configuration import Configuration
-from MotorUnitPool import MotorUnitPool
-from InterneuronPool import InterneuronPool
+from MotorUnitPoolOpt import MotorUnitPool
+from InterneuronPoolOpt import InterneuronPool
 from NeuralTract import NeuralTract
 from SynapsesFactory import SynapsesFactory
 
 def simulator():
 
-    conf = Configuration('confMNRC.rmto')
+    conf = Configuration('confuchiyama.rmto')
 
     pools = dict()
     pools[0] = MotorUnitPool(conf, 'SOL')
@@ -45,10 +45,12 @@ def simulator():
     for i in xrange(0, len(t)):
         # t=step*i [ms]
         # Current in nA, adjusted to reproduce approximately the experimental 3mV
-        if i>400 and i<410:
-            pools[0].iInjected[1] = 13
+        if t[i]>10 and t[i]<510:
+            for j in xrange(len(pools[0].unit)):
+                pools[0].iInjected[2*j+1] = 13
         else:
-            pools[0].iInjected[1] = 0
+            for j in xrange(len(pools[0].unit)):
+                pools[0].iInjected[2*j+1] = 0
         pools[0].atualizeMotorUnitPool(t[i]) # MN pool
         pools[2].atualizePool(t[i]) # RC synaptic Noise
         pools[1].atualizeInterneuronPool(t[i]) # RC pool
@@ -58,16 +60,25 @@ def simulator():
     print str(toc - tic) + ' seconds'
 
     pools[0].listSpikes()
-
+    pools[1].listSpikes()
+ 
     plt.figure()
-    plt.plot(t, MN_mV, '-')
+    plt.plot(pools[1].poolSomaSpikes[:, 0],
+             pools[1].poolSomaSpikes[:, 1]+1, '.')
+    
     
     plt.figure()
     plt.plot(pools[0].poolSomaSpikes[:, 0],
-        pools[0].poolSomaSpikes[:, 1]+1, '.')
+             pools[0].poolSomaSpikes[:, 1]+1, '.')
+
+    plt.figure()
+    plt.plot(t, pools[0].Muscle.force, '-')
 
     plt.figure()
     plt.plot(t, RC_mV, '-')
+
+    plt.figure()
+    plt.plot(t, MN_mV, '-')
     
 if __name__ == '__main__':
 

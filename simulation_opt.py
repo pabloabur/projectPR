@@ -17,16 +17,16 @@ from Configuration import Configuration
 from MotorUnitPoolOpt import MotorUnitPool
 from InterneuronPoolOpt import InterneuronPool
 from NeuralTract import NeuralTract
-from SynapsesFactory import SynapsesFactory
+from SynapsesFactoryRenshaw import SynapsesFactory
 from jointAnkleForceTask import jointAnkleForceTask
 
 def simulator():
 
-    conf = Configuration('confTest.rmto')
+    conf = Configuration('confuchiyama.rmto')
 
     pools = dict()
     pools[0] = MotorUnitPool(conf, 'SOL')
-    pools[1] = NeuralTract(conf, 'CMExt')
+    pools[1] = InterneuronPool(conf, 'RC', 'ext')
 
     #pools.append(InterneuronPool(conf, 'RC'))
 
@@ -45,6 +45,7 @@ def simulator():
     for i in xrange(0, len(t)):
         #for j in xrange(len(pools[0].unit)):
         #    pools[0].unit[j].iInjected[1] = 10
+        # TODO new input parameters
         pools[1].atualizePool(t[i])
         pools[0].atualizeMotorUnitPool(t[i])
         dendV[i] = pools[0].unit[2].v_mV[0]
@@ -54,7 +55,7 @@ def simulator():
 
     pools[0].listSpikes()
     pools[1].listSpikes()
-    '''
+ 
     plt.figure()
     plt.plot(pools[1].poolTerminalSpikes[:, 0],
              pools[1].poolTerminalSpikes[:, 1]+1, '.')
@@ -72,7 +73,7 @@ def simulator():
 
     plt.figure()
     plt.plot(t, somaV, '-')
-    '''
+
 if __name__ == '__main__':
 
     #cProfile.run('simulator()', sort = 'tottime')

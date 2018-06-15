@@ -125,7 +125,7 @@ class Interneuron(object):
         
 
         for i in xrange(len(compartmentsList)): 
-            self.compartment[i] = Compartment(compartmentsList[i], self.conf, self.pool, self.index, self.kind)
+            self.compartment[i] = Compartment(compartmentsList[i], self.conf, self.pool, self.index, 'interneuron')
 
         ## Number of compartments.
         self.compNumber = len(self.compartment)

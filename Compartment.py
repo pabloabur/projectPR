@@ -102,7 +102,12 @@ class Compartment(object):
         area_cm2 = float(self.length_mum * math.pi * self.diameter_mum * 1e-8)
         specifRes_Ohmcm2 = float(conf.parameterSet('res@' + kind, pool, index))
         ## Capacitance of the compartment, in nF.
-        self.capacitance_nF = float(conf.parameterSet('membCapac', pool, index)) * area_cm2 * 1e3
+        if neuronKind == 'interneuron':
+            print 'maoi'
+            self.capacitance_nF = float(conf.parameterSet('membCapac_IN', pool, index)) * area_cm2 * 1e3
+        else:
+            print 'maio'
+            self.capacitance_nF = float(conf.parameterSet('membCapac', pool, index)) * area_cm2 * 1e3
         
         ## Equilibrium potential, in mV.
         self.EqPot_mV = float(conf.parameterSet('EqPot@' + self.kind, pool, index))

@@ -45,94 +45,102 @@ class SynapsesFactory(object):
         self.numberOfSynapses = 0
         #pools.append(NeuralTract(conf, 'NoiseRC'))
 
-
+        # The 'Out' suffix is used here to identify the presynaptic neurons.
         for poolOut in xrange(len(pools)):
             for unitOut in xrange(len(pools[poolOut].unit)):
+                # Get all the synapses that unitOut from poolOut can make.
+                # They may or may not be connected later, depending on simulation settings
                 pools[poolOut].unit[unitOut].SynapsesOut = conf.determineSynapses(pools[poolOut].pool + '-' + 
                                                                                   pools[poolOut].unit[unitOut].kind)
-                #print pools[poolOut].pool
-                #print pools[poolOut].unit[unitOut].SynapsesOut
+                # The 'In' suffix, on the other hand, is for the postsynaptic neurons.
+                # The loop will prepare all possible sinapses from pools[poolOut].unit[unitOut]
                 for synapseIn in xrange(len(pools[poolOut].unit[unitOut].SynapsesOut)):
+                    presynapticPool = pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
+                    presynapticType = pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
+                    presynapticCompartment = pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
+                    presynapticKind = pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3]
                     conn = float(conf.parameterSet('Con:' + pools[poolOut].pool + '-' 
                                                    + pools[poolOut].unit[unitOut].kind + '>'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
+                                                   + presynapticPool
                                                    + '-'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
+                                                   + presynapticType
                                                    + '@'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
+                                                   + presynapticCompartment
                                                    + '|'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                                   + presynapticKind,
                                                    '', 0)) / 100.0
                     gmax = float(conf.parameterSet('gmax:' + pools[poolOut].pool + '-'
                                                    + pools[poolOut].unit[unitOut].kind + '>'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
+                                                   + presynapticPool
                                                    + '-'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
+                                                   + presynapticType
                                                    + '@'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
+                                                   + presynapticCompartment
                                                    + '|'
-                                                   + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                                   + presynapticKind,
                                                    '', 0))
                     delay = float(conf.parameterSet('delay:' + pools[poolOut].pool + '-'
                                                     + pools[poolOut].unit[unitOut].kind + '>'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
+                                                    + presynapticPool
                                                     + '-'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
+                                                    + presynapticType
                                                     + '@'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
+                                                    + presynapticCompartment
                                                     + '|'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                                    + presynapticKind,
                                                     '', 0))
                     declineFactor = float(conf.parameterSet('dec:' + pools[poolOut].pool + '-'
                                                     + pools[poolOut].unit[unitOut].kind + '>'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
+                                                    + presynapticPool
                                                     + '-'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
+                                                    + presynapticType
                                                     + '@'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
+                                                    + presynapticCompartment
                                                     + '|'
-                                                    + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                                    + presynapticKind,
                                                     '', 0))
                     dyn = conf.parameterSet('dyn:' + pools[poolOut].pool + '-'
                                             + pools[poolOut].unit[unitOut].kind + '>'
-                                            + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
-                                            + '-' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
-                                            + '@' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
-                                            + '|' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                            + presynapticPool
+                                            + '-' + presynapticType
+                                            + '@' + presynapticCompartment
+                                            + '|' + presynapticKind,
                                             '', 0)
                     if dyn != 'None':
                         var = float(conf.parameterSet('var:' + pools[poolOut].pool + '-'
                                                       + pools[poolOut].unit[unitOut].kind + '>'
-                                                      + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
-                                                      + '-' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
-                                                      + '@' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
-                                                      + '|' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                                      + presynapticPool
+                                                      + '-' + presynapticType
+                                                      + '@' + presynapticCompartment
+                                                      + '|' + presynapticKind,
                                                       '', 0))
                         tau = float(conf.parameterSet('tau:' + pools[poolOut].pool + '-'
                                                       + pools[poolOut].unit[unitOut].kind + '>'
-                                                      + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0]
-                                                      + '-' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1]
-                                                      + '@' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2]
-                                                      + '|' + pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3],
+                                                      + presynapticPool
+                                                      + '-' + presynapticType
+                                                      + '@' + presynapticCompartment
+                                                      + '|' + presynapticKind,
                                                       '', 0))
                     else:
                         var = 0
                         tau = 100000
+                    # This loop will determine which neurons will actually receive the synapse just built.
                     for poolIn in xrange(len(pools)):
-                        if (pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0].find(pools[poolIn].pool)>=0):
+                        if pools[poolIn].pool in presynapticPool:
                             for unitIn in xrange(len(pools[poolIn].unit)):
                                 for compartmentIn in xrange(len(pools[poolIn].unit[unitIn].compartment)):
-                                    if pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][0] == pools[poolIn].pool and pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][1] == pools[poolIn].unit[unitIn].kind and pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][2] == pools[poolIn].unit[unitIn].compartment[compartmentIn].kind:
+                                    if presynapticPool == pools[poolIn].pool and presynapticType == pools[poolIn].unit[unitIn].kind and presynapticCompartment == pools[poolIn].unit[unitIn].compartment[compartmentIn].kind:
                                         if np.isfinite(declineFactor):
                                             neuronsDistance = np.abs(pools[poolIn].unit[unitIn].position_mm
                                                     - pools[poolOut].unit[unitOut].position_mm)
                                             weight = 1
-                                            conn = conn*declineFactor / (declineFactor + neuronsDistance**2)
+                                            Pconn = conn*declineFactor / (declineFactor + neuronsDistance**2)
                                         else:
                                             weight = 1
-                                        if np.random.uniform(0.0, 1.0) <= conn:
+                                            Pconn = conn
+                                        if np.random.uniform(0.0, 1.0) <= Pconn:
                                             for synapse in xrange(len(pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn)): 
-                                                if pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn[synapse].kind == pools[poolOut].unit[unitOut].SynapsesOut[synapseIn][3]:
+                                                if pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn[synapse].kind == presynapticKind:
                                                     pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn[synapse].addConductance(gmax*weight, delay, dyn, var, tau)
                                                     pools[poolOut].unit[unitOut].transmitSpikesThroughSynapses.append(pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn[synapse])                                                            
                                                     pools[poolOut].unit[unitOut].indicesOfSynapsesOnTarget.append(len(pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn[synapse].gmax_muS) - 1)

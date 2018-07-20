@@ -210,10 +210,10 @@ class Configuration(object):
         Function used to determine all the synapses that a given pool makes. It is used in the SynapsesFactory class.
         
 - Inputs:
-    + **neuralSource** - string with the pool name from which is desired to know what synapses it will make.
+    + **neuralSource** - string with the pool name.
 
 - Outputs:
-    + array of strings with all the synapses target that the neuralSource will make.
+    + array of strings with all the synapses target that the neuralSource will make. Each one contains informations about postsynaptic pool, type of the neuron, compartment location and kind (excitatory/inhibitory).
         '''
         Synapses = []
 

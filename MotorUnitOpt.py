@@ -531,7 +531,7 @@ class MotorUnit(object):
                     stimulusPeriod_ms = 1000.0 / stimulusFrequency_Hz
                     numberOfSteps = int(np.rint(stimulusPeriod_ms / self.conf.timeStep_ms))
                     if ((i - startStep) % numberOfSteps == 0):
-                        self.nerveStimulus_mA[i:int(np.rint(i+1.0 / self.conf.timeStep_ms))] = self.stimulusIntensity_mA
+                        self.nerveStimulus_mA[i:int(np.rint(i+self.stimulusPulseDuration_ms / self.conf.timeStep_ms))] = self.stimulusIntensity_mA
 
 
     def reset(self):
@@ -547,6 +547,7 @@ class MotorUnit(object):
         self.tSpikes = np.zeros((self.compNumber), dtype = np.float64)
         self.iIonic = np.full_like(self.v_mV, 0.0)
         self.iInjected = np.zeros_like(self.v_mV, dtype = 'd')
+        self.nerveStimulus_mA = np.zeros((int(np.rint(self.conf.simDuration_ms/self.conf.timeStep_ms)), 1), dtype = float)
 
         self.somaSpikeTrain = []
         ## Vector with the instants of spikes at the last compartment.

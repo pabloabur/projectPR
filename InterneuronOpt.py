@@ -224,3 +224,19 @@ class Interneuron(object):
             self.transmitSpikesThroughSynapses[i].receiveSpike(t, self.indicesOfSynapsesOnTarget[i])
 
         
+    def reset(self):
+        '''
+
+        '''
+        self.tSomaSpike = float("-inf")
+        self.v_mV = np.zeros((self.compNumber), dtype = np.float64)
+        for i in xrange(len(self.compartment)): 
+            self.v_mV[i] = self.compartment[i].EqPot_mV
+            self.compartment[i].reset()
+        self.tSpikes = np.zeros((self.compNumber), dtype = np.float64)
+        self.iIonic = np.full_like(self.v_mV, 0.0)
+        self.iInjected = np.zeros_like(self.v_mV, dtype = 'd')
+
+        self.somaSpikeTrain = []
+        ## Vector with the instants of spikes at the terminal.
+        self.terminalSpikeTrain = []

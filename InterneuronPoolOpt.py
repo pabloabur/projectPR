@@ -153,5 +153,10 @@ class InterneuronPool(object):
         self.poolSomaSpikes = somaSpikeTrain
         self.poolSomaSpikes = np.reshape(self.poolSomaSpikes, (-1, 2))
         
+    def reset(self):
+        self.poolSomaSpikes = np.array([])
+        self.poolLastCompSpikes = np.array([])    
 
-          
+        self.v_mV = np.zeros((self.totalNumberOfCompartments),
+                             dtype = np.double)
+        for i in xrange(self.Nnumber): self.unit[i].reset()

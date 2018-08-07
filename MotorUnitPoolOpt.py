@@ -280,6 +280,8 @@ class MotorUnitPool(object):
         '''
 
                    
+        self.v_mV = np.zeros((self.totalNumberOfCompartments),
+                             dtype = np.double)
         self.poolSomaSpikes = np.array([])
         self.poolLastCompSpikes = np.array([])    
         self.poolTerminalSpikes = np.array([])

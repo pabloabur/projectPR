@@ -8,7 +8,7 @@ from NeuralTract import NeuralTract
 
 import numpy as np
 
-def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCdecay, RCMNdecay, posMN, posRC):
+def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCdecay, RCMNdecay, posMN, posRC, FFConductanceStrength):
 
     conf = Configuration('../../confuchiyama.rmto')
     #import pdb; pdb.set_trace()
@@ -123,6 +123,12 @@ def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCd
         conf.confArray['f1'][idx] = 0.119
         idx = np.where(conf.confArray['f0']=='gmax:RC_ext->MG-FF@dendrite|inhibitory')[0][0]
         conf.confArray['f1'][idx] = 0.081
+        idx = np.where(conf.confArray['f0']=='gmax:MG-S>RC_ext-@soma|excitatory')[0][0]
+        conf.confArray['f1'][idx] = FFConductanceStrength/2.2
+        idx = np.where(conf.confArray['f0']=='gmax:MG-FR>RC_ext-@soma|excitatory')[0][0]
+        conf.confArray['f1'][idx] = FFConductanceStrength/1.8
+        idx = np.where(conf.confArray['f0']=='gmax:MG-FF>RC_ext-@soma|excitatory')[0][0]
+        conf.confArray['f1'][idx] = FFConductanceStrength
         
         # Threshold
         idx = np.where(conf.confArray['f0']=='threshold:RC_ext-')[0][0]

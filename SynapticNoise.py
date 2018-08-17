@@ -40,8 +40,16 @@ class SynapticNoise(object):
         self.kind = 'SN'
         ## String with the name of the pool.
         self.pool = pool
+        print self.pool
         ## The number of neural tract units.
-        self.Number = int(conf.parameterSet('Number_' + pool, pool, 0))
+        if self.pool == 'SOL' or self.pool == 'MG' or self.pool == 'LG' or self.pool == 'TA':
+            print 'MUnumber_' + self.pool + '-S'
+            print 'MUnumber_' + self.pool + '-FR'
+            self.Number = (int(conf.parameterSet('MUnumber_' + self.pool + '-S', pool, 0))+
+                           int(conf.parameterSet('MUnumber_' + self.pool + '-FR', pool, 0))+
+                           int(conf.parameterSet('MUnumber_' + self.pool + '-FF', pool, 0)))
+        else:
+            self.Number = int(conf.parameterSet('Number_' + pool, pool, 0))
         
         ## List of NeuralTractUnit objects.
         self.unit = [] 
@@ -81,7 +89,7 @@ class SynapticNoise(object):
         '''
         
 
-        for i in self.unit: i.atualizeNeuralTractUnit(t, self.FR[self.timeIndex]*self.conf.timeStep_ms/1000.0, self.GammaOrder)
+        for i in self.unit: i.atualizeNeuralTractUnit(t, self.FR[self.timeIndex], self.GammaOrder)
         self.timeIndex +=1
 
     def listSpikes(self):

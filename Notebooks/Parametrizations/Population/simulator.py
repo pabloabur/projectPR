@@ -115,7 +115,8 @@ def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCd
         conf.confArray['f2'][idx] = 760
         
     elif Parametrization == 'final':
-        from SynapsesFactoryRenshaw import SynapsesFactory
+        #from SynapsesFactoryRenshaw import SynapsesFactory
+        from SynapsesFactory import SynapsesFactory
         ## Conductances
         idx = np.where(conf.confArray['f0']=='gmax:RC_ext->MG-S@dendrite|inhibitory')[0][0]
         conf.confArray['f1'][idx] = 0.130

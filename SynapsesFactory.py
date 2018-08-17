@@ -186,7 +186,7 @@ class SynapsesFactory(object):
                     if NoiseSynapsesOut[synapseIn][0] == pools[poolIn].pool and pools[poolIn].kind != 'SN':
                         for unitIn in xrange(len(pools[poolIn].unit)):
                             for compartmentIn in xrange(len(pools[poolIn].unit[unitIn].compartment)):
-                                if NoiseSynapsesOut[synapseIn][1] == pools[poolIn].unit[unitIn].kind and NoiseSynapsesOut[synapseIn][2] == pools[poolIn].unit[unitIn].compartment[compartmentIn].kind and pools[poolIn].unit[unitIn].index == pools[poolOut].unit[unitOut].index:
+                                if NoiseSynapsesOut[synapseIn][2] == pools[poolIn].unit[unitIn].compartment[compartmentIn].kind and pools[poolIn].unit[unitIn].index == pools[poolOut].unit[unitOut].index:
                                     for synapse in xrange(len(pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn)): 
                                         if pools[poolIn].unit[unitIn].compartment[compartmentIn].SynapsesIn[synapse].kind == NoiseSynapsesOut[synapseIn][3]:
                                             if np.isfinite(declineFactor):

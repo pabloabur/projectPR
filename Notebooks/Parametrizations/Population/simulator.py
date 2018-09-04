@@ -115,8 +115,8 @@ def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCd
         conf.confArray['f2'][idx] = 760
         
     elif Parametrization == 'final':
-        #from SynapsesFactoryRenshaw import SynapsesFactory
-        from SynapsesFactory import SynapsesFactory
+        from SynapsesFactoryRenshaw import SynapsesFactory
+        #from SynapsesFactory import SynapsesFactory
         ## Conductances
         idx = np.where(conf.confArray['f0']=='gmax:RC_ext->MG-S@dendrite|inhibitory')[0][0]
         conf.confArray['f1'][idx] = 0.130
@@ -163,17 +163,17 @@ def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCd
         
         ## Connectivity, set to ensure neurons are connected properly
         idx = np.where(conf.confArray['f0']=='Con:RC_ext->MG-FF@dendrite|inhibitory')[0][0]
-        conf.confArray['f1'][idx] = 100
+        conf.confArray['f1'][idx] = 100#70
         idx = np.where(conf.confArray['f0']=='Con:MG-FF>RC_ext-@soma|excitatory')[0][0]
-        conf.confArray['f1'][idx] = 100
+        conf.confArray['f1'][idx] = 100#41
         idx = np.where(conf.confArray['f0']=='Con:RC_ext->MG-S@dendrite|inhibitory')[0][0]
-        conf.confArray['f1'][idx] = 100
+        conf.confArray['f1'][idx] = 100#70
         idx = np.where(conf.confArray['f0']=='Con:MG-S>RC_ext-@soma|excitatory')[0][0]
-        conf.confArray['f1'][idx] = 100
+        conf.confArray['f1'][idx] = 100#41
         idx = np.where(conf.confArray['f0']=='Con:RC_ext->MG-FR@dendrite|inhibitory')[0][0]
-        conf.confArray['f1'][idx] = 100
+        conf.confArray['f1'][idx] = 100#70
         idx = np.where(conf.confArray['f0']=='Con:MG-FR>RC_ext-@soma|excitatory')[0][0]
-        conf.confArray['f1'][idx] = 100
+        conf.confArray['f1'][idx] = 100#41
         
         # Decay factors
         idx = np.where(conf.confArray['f0']=='dec:MG-S>RC_ext-@soma|excitatory')[0][0]
@@ -210,7 +210,7 @@ def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCd
     for i in xrange(0, len(t)):
         # stimulus to soma of MNi
         if t[i]>10 and t[i]<11:
-            pools[0].iInjected[2*MNi+1] = 40
+            pools[0].iInjected[2*MNi+1] = 50
         else:
             pools[0].iInjected[2*MNi+1] = 0
         pools[0].atualizeMotorUnitPool(t[i]) # MN pool

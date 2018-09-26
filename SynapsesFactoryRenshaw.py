@@ -133,7 +133,7 @@ class SynapsesFactory(object):
                                         if np.isfinite(declineFactor):
                                             neuronsDistance = np.abs(pools[poolIn].unit[unitIn].position_mm
                                                     - pools[poolOut].unit[unitOut].position_mm)
-                                            weight = 1#np.exp(-(neuronsDistance)**2/(2*declineFactor**2))
+                                            weight = np.exp(-(neuronsDistance)**2/(2*declineFactor**2))
                                             Pconn = conn*np.exp(-(neuronsDistance)**2/(2*declineFactor**2))
                                         else:
                                             weight = 1

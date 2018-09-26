@@ -163,17 +163,17 @@ def simulator(numberS, numberFR, numberFF, numberRC, MNi, Parametrization, MNRCd
         
         ## Connectivity, set to ensure neurons are connected properly
         idx = np.where(conf.confArray['f0']=='Con:RC_ext->MG-FF@dendrite|inhibitory')[0][0]
-        conf.confArray['f1'][idx] = 100#70
+        conf.confArray['f1'][idx] = 70
         idx = np.where(conf.confArray['f0']=='Con:MG-FF>RC_ext-@soma|excitatory')[0][0]
-        conf.confArray['f1'][idx] = 100#41
+        conf.confArray['f1'][idx] = 41
         idx = np.where(conf.confArray['f0']=='Con:RC_ext->MG-S@dendrite|inhibitory')[0][0]
-        conf.confArray['f1'][idx] = 100#70
+        conf.confArray['f1'][idx] = 70
         idx = np.where(conf.confArray['f0']=='Con:MG-S>RC_ext-@soma|excitatory')[0][0]
-        conf.confArray['f1'][idx] = 100#41
+        conf.confArray['f1'][idx] = 41
         idx = np.where(conf.confArray['f0']=='Con:RC_ext->MG-FR@dendrite|inhibitory')[0][0]
-        conf.confArray['f1'][idx] = 100#70
+        conf.confArray['f1'][idx] = 70
         idx = np.where(conf.confArray['f0']=='Con:MG-FR>RC_ext-@soma|excitatory')[0][0]
-        conf.confArray['f1'][idx] = 100#41
+        conf.confArray['f1'][idx] = 41
         
         # Decay factors
         idx = np.where(conf.confArray['f0']=='dec:MG-S>RC_ext-@soma|excitatory')[0][0]
